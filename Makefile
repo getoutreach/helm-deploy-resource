@@ -1,4 +1,4 @@
-PROJECT = concourse-helm3
+PROJECT = helm-deploy-resource
 ID = YOUR_DOCKER_HOST_HERE/${PROJECT}
 
 all: build push

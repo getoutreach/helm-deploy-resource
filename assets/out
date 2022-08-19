@@ -15,7 +15,7 @@ cat > $payload <&0
 
 # Prepare
 setup_resource $payload $source
-setup_repos $payload $source 
+setup_repos $payload $source
 echo "Resource setup successful."
 
 namespace=$(jq -r '.source.namespace // "default"' < $payload)
@@ -44,6 +44,7 @@ check_is_ready=$(jq -r '.params.check_is_ready // "false"' < $payload)
 wait_for_jobs=$(jq -r '.params.wait_for_jobs // "false"' < $payload)
 timeout=$(jq -r '.params.timeout // "5m0s"' < $payload)
 skip_missing_values=$(jq -r '.params.skip_missing_values // "false"' < $payload)
+dry_run=$(jq -r '.params.dryrun // "false"' <$payload)
 
 if [[ "$test" == "false" ]] && [[ "$uninstall" == "false" ]] && [ -z "$chart" ] ; then
   echo "invalid payload (missing chart)"
@@ -153,7 +154,7 @@ helm_upgrade() {
     upgrade_args+=("--wait")
     upgrade_args+=("--wait-for-jobs")
   elif [ "$check_is_ready" == "true" ]; then
-    upgrade_args+=("--wait")    
+    upgrade_args+=("--wait")
   fi
 
   if [ "$atomic" == "true" ]; then
@@ -161,6 +162,10 @@ helm_upgrade() {
   fi
 
   if [ "$debug" == "true" ]; then
+    upgrade_args+=("--debug")
+  fi
+
+  if [ "$dry_run" == "true" ]; then
     upgrade_args+=("--debug")
     upgrade_args+=("--dry-run")
     upgrade_diff_args+=("--dry-run")
@@ -249,6 +254,10 @@ helm_uninstall() {
   echo "Uninstalling the release $release..."
   uninstall_args=("uninstall")
   if [ "$debug" = true ]; then
+    uninstall_args+=("--debug")
+  fi
+
+  if [ "$dry_run" = true ]; then
     uninstall_args+=("--dry-run" "--debug")
   fi
 
@@ -265,13 +274,13 @@ helm_test() {
     echo "invalid payload (missing release if test=true)"
     exit 1
   fi
-  
+
   if [ "$debug" = true ]; then
     test_args+=("--debug")
   fi
-  
+
   test_args+=("--namespace=$namespace" "test" "$release" "--timeout=$timeout")
- 
+
   if [ "$test_logs" = true ] ; then
     test_args+=("--logs")
   fi
@@ -286,7 +295,7 @@ helm_test() {
 if [ "$uninstall" = true ]; then
   helm_uninstall
 
-  if [ "$delete_namespace" = true ] && [ -n "$namespace" ] && [ $debug = false ]; then
+  if [ "$delete_namespace" = true ] && [ -n "$namespace" ] && [ "$dry_run" = false ]; then
     echo "Deleting the namespace $namespace..."
     logfile="/tmp/log"
     kubectl delete namespaces "$namespace" | tee "$logfile"
@@ -307,7 +316,7 @@ else
   echo "Installing $release"
   helm_upgrade
 
-  if [ "$debug" != "true" ]; then
+  if [ "$dry_run" != "true" ]; then
     # If release is empty
     if [ -z "$release" ]; then
       release=$deployed_release
@@ -319,7 +328,7 @@ else
     result="$(jq -n "{version:{release:\"$release\", revision:\"$revision\"}, metadata: [{name: \"release\", value: \"$release\"},{name: \"revision\", value: \"$revision\"},{name: \"chart\", value: \"$chart\"}]}")"
     echo "$result" | jq -s add  >&3
   else
-    echo "Debug was set to ${debug}; no release was performed. | tee $logfile"
+    echo "Dryrun was set to ${dry_run}; no release was performed. | tee $logfile"
     echo '{"version": {"revision": "N/A", "release": "N/A"}}' >&3
   fi
 fi

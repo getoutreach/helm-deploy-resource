@@ -113,7 +113,8 @@ Deploy an helm chart
 -   `force`: _Optional._ Force resource update through uninstall/recreate if needed. (Default: false)
 -   `devel`: _Optional._ Allow development versions of chart to be installed. This is useful when wanting to install pre-release
     charts (i.e. 1.0.2-rc1) without having to specify a version. (Default: false)
--   `debug`: _Optional._ Dry run the helm install with the debug flag which logs interpolated chart templates. (Default: false)
+-   `dry_run`: _Optional._ Dry run the helm install with the debug flag which logs interpolated chart templates. (Default: false)
+-   `debug`: _Optional._ Debug the helm install which logs interpolated chart templates. (Default: false)
 -   `check_is_ready`: _Optional._ Requires that `wait` is set to Default. Applies --wait without timeout. (Default: false)
 -   `wait_for_jobs`: _Optional._ Requires that `wait` is set to Default. Applies --wait and --wait-for-jobs without timeout. (Default: false)
 -   `atomic`: _Optional._ This flag will cause failed installs to purge the release, and failed upgrades to rollback to the previous release. (Default: false)
@@ -123,6 +124,7 @@ Deploy an helm chart
 -   `wait`: _Optional._ Allows deploy task to sleep for X seconds before continuing to next task. Allows pods to restart and become stable, useful where dependency between pods exists. (Default: 0)
 -   `kubeconfig`: _Optional._ String containing a kubeconfig. Overrides `kubeconfig_path` and source configuration for cluster, token, and admin config.
 -   `kubeconfig_path`: _Optional._ File containing a kubeconfig. Overrides source configuration for cluster, token, and admin config.
+-   `kubecontext`: _Optional._ String containing a kube context.
 -   `show_diff`: _Optional._ Show the diff that is applied if upgrading an existing successful release. (Default: false)
 -   `skip_missing_values:` _Optional._ Missing values files are skipped if they are specified in the values but do not exist. (Default false)
 

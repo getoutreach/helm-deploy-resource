@@ -1,8 +1,8 @@
-FROM alpine/helm:3.8.0
+FROM alpine/helm:3.2.0
 LABEL maintainer "Yann David (@Typositoire) <davidyann88@gmail>"
 
 #Versions for gcloud,kubectl,doctl
-ARG KUBERNETES_VERSION=1.21.5
+ARG KUBERNETES_VERSION=1.14.10
 ARG GCLOUD_VERSION=327.0.0
 ARG DOCTL_VERSION=1.57.0
 ARG HELM_PLUGINS_TO_INSTALL="https://github.com/databus23/helm-diff"
@@ -15,15 +15,15 @@ RUN apk add --update --upgrade --no-cache jq bash curl git gettext libintl py-pi
 
 #install kubectl
 RUN curl -sL -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v${KUBERNETES_VERSION}/bin/linux/amd64/kubectl; \
-    chmod +x /usr/local/bin/kubectl
+  chmod +x /usr/local/bin/kubectl
 
 #install gcloud
 RUN wget https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GCLOUD_VERSION}-linux-x86_64.tar.gz \
-    -O /tmp/google-cloud-sdk.tar.gz | bash
+  -O /tmp/google-cloud-sdk.tar.gz | bash
 
 RUN mkdir -p /usr/local/gcloud \
-    && tar -C /usr/local/gcloud -xvzf /tmp/google-cloud-sdk.tar.gz \
-    && /usr/local/gcloud/google-cloud-sdk/install.sh -q
+  && tar -C /usr/local/gcloud -xvzf /tmp/google-cloud-sdk.tar.gz \
+  && /usr/local/gcloud/google-cloud-sdk/install.sh -q
 
 #copy scripts
 ADD assets /opt/resource
